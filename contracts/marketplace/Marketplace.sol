@@ -148,6 +148,16 @@ contract Marketplace is Ownable {
         address paymentToken_,
         uint256 price_
     ) public onlySupportedPaymentToken(paymentToken_) {
+        require(
+            nftContract.ownerOf(tokenId_) == _msgSender(),
+            "NFTMarketplace: sender is not owner of token"
+        );
+        require(
+            nftContract.getApproved(tokenId_) == address(this) ||
+                nftContract.isApprovedForAll(_msgSender(), address(this)),
+            "NFTMarketplace: The contract is unauthorized to manage this token"
+        );
+        require(price_ > 0, "NFTMarketplace: price must be greater than 0");
         uint256 _orderId = _orderIdCounter.current();
         orders[_orderId] = Order(
             _msgSender(),
@@ -184,6 +194,7 @@ contract Marketplace is Ownable {
     }
 
     function executeOrder(uint256 orderId_) external {
+        Order storage _order = orders[orderId_];
         require(
             !isSeller(orderId_, _msgSender()),
             "NFTMarketplace: buyer must be different from seller"
@@ -192,7 +203,7 @@ contract Marketplace is Ownable {
             orders[orderId_].buyer == address(0),
             "NFTMarketplace: buyer must be zero"
         );
-        Order storage _order = orders[orderId_];
+        require(_order.price > 0, "NFTMarketplace: order has been canceled");
         // update order of orderId_, Check phi giao dich
         orders[orderId_].buyer = _msgSender();
         uint256 _feeAmount = _calculateFee(orderId_);
