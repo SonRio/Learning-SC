@@ -39,7 +39,7 @@ contract Marketplace is Ownable {
         uint256 price
     );
 
-    event OrderCancel(uint256 indexed orderId);
+    event OrderCancelled(uint256 indexed orderId);
 
     event OrderMatched(
         uint256 indexed orderId,
@@ -64,31 +64,31 @@ contract Marketplace is Ownable {
         );
 
         nftContract = IERC721(nftAddress_);
-        _updateFeRecipient(feeRecipient_);
+        _updateFeeRecipient(feeRecipient_);
         _updateFeeRate(feeDecimal_, feeRate_);
         _orderIdCounter.increment();
     }
 
-    function _updateFeRecipient(address feeRecipient_) internal {
+    function _updateFeeRecipient(address feeRecipient_) internal {
         require(
             feeRecipient_ != address(0),
-            "NFTMarketplace: feeRecipient is zero address"
+            "NFTMarketplace: feeRecipient_ is zero address"
         );
         feeRecipient = feeRecipient_;
     }
 
-    function updateFeRecipient(address feeRecipient_) external onlyOwner {
-        _updateFeRecipient(feeRecipient_);
+    function updateFeeRecipient(address feeRecipient_) external onlyOwner {
+        _updateFeeRecipient(feeRecipient_);
     }
 
     function _updateFeeRate(uint256 feeDecimal_, uint256 feeRate_) internal {
-        // Phần trăm fee bắt buộc phải nhỏ hơn 100%
+        // Phần trăm feeRate bắt buộc phải nhỏ hơn 100%
         require(
             feeRate_ < 10 ** (feeDecimal_ + 2),
             "NFTMarketplace: bad fee rate"
         );
-        feeRate = feeRate_;
         feeDecimal = feeDecimal_;
+        feeRate = feeRate_;
         emit FeeRateUpdated(feeDecimal_, feeRate_);
     }
 
@@ -128,17 +128,16 @@ contract Marketplace is Ownable {
     }
 
     // Check xem token đã được add vào payment token hay chưa?
-    function isPaymentSupported(
+    function isPaymentTokenSupported(
         address paymentToken_
     ) public view returns (bool) {
         return _supportedPaymentTokens.contains(paymentToken_);
     }
 
-    // check có đc hỗ trợ trong payment token hay k?
     modifier onlySupportedPaymentToken(address paymentToken_) {
         require(
-            isPaymentSupported(paymentToken_),
-            '"NFTMarketplace: unsupport payment token'
+            isPaymentTokenSupported(paymentToken_),
+            "NFTMarketplace: unsupport payment token"
         );
         _;
     }
@@ -181,31 +180,27 @@ contract Marketplace is Ownable {
         Order storage _order = orders[orderId_];
         require(
             _order.buyer == address(0),
-            '"NFTMarketplace: buyer must be zero'
+            "NFTMarketplace: buyer must be zero"
         );
-        require(
-            _order.seller == _msgSender(),
-            '"NFTMarketplace: must be owner");'
-        );
+        require(_order.seller == _msgSender(), "NFTMarketplace: must be owner");
         uint256 _tokenId = _order.tokenId;
         delete orders[orderId_];
         nftContract.transferFrom(address(this), _msgSender(), _tokenId);
-        emit OrderCancel(orderId_);
+        emit OrderCancelled(orderId_);
     }
 
     function executeOrder(uint256 orderId_) external {
         Order storage _order = orders[orderId_];
+        require(_order.price > 0, "NFTMarketplace: order has been canceled");
         require(
             !isSeller(orderId_, _msgSender()),
             "NFTMarketplace: buyer must be different from seller"
         );
         require(
-            orders[orderId_].buyer == address(0),
+            _order.buyer == address(0),
             "NFTMarketplace: buyer must be zero"
         );
-        require(_order.price > 0, "NFTMarketplace: order has been canceled");
-        // update order of orderId_, Check phi giao dich
-        orders[orderId_].buyer = _msgSender();
+        _order.buyer = _msgSender();
         uint256 _feeAmount = _calculateFee(orderId_);
 
         // Người mua phải chuyển số tiền băng vs giá của NFT
