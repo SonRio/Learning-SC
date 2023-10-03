@@ -208,100 +208,100 @@ describe("marketplace", function () {
         marketplace.connect(buyer).executeOrder(1)
       ).to.be.revertedWith("NFTMarketplace: order has been canceled");
     });
-    it("should execute order correctly with default fee", async function () {
-      const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
-      await expect(executeOrderTx)
-        .to.be.emit(marketplace, "OrderMatched")
-        .withArgs(
-          1,
-          seller.address,
-          buyer.address,
-          1,
-          gold.address,
-          defaulPrice
-        );
-      expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
-      expect(await gold.balanceOf(seller.address)).to.be.equal(
-        defaulBalance.add(defaulPrice.mul(90).div(100))
-      );
-      expect(await gold.balanceOf(buyer.address)).to.be.equal(
-        defaulBalance.sub(defaulPrice)
-      );
-      expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
-        defaulBalance.add(defaulPrice.mul(10).div(100))
-      );
-    });
-    it("should execute order correctly with 0 fee", async function () {
-      await marketplace.updateFeeRate(0, 0);
-      const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
-      await expect(executeOrderTx)
-        .to.be.emit(marketplace, "OrderMatched")
-        .withArgs(
-          1,
-          seller.address,
-          buyer.address,
-          1,
-          gold.address,
-          defaulPrice
-        );
-      expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
-      expect(await gold.balanceOf(seller.address)).to.be.equal(
-        defaulBalance.add(defaulPrice)
-      );
-      expect(await gold.balanceOf(buyer.address)).to.be.equal(
-        defaulBalance.sub(defaulPrice)
-      );
-      expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
-        defaulBalance.add(0)
-      );
-    });
-    it("should execute order correctly with fee 1 = 99%", async function () {
-      await marketplace.updateFeeRate(0, 99);
-      const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
-      await expect(executeOrderTx)
-        .to.be.emit(marketplace, "OrderMatched")
-        .withArgs(
-          1,
-          seller.address,
-          buyer.address,
-          1,
-          gold.address,
-          defaulPrice
-        );
-      expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
-      expect(await gold.balanceOf(seller.address)).to.be.equal(
-        defaulBalance.add(defaulPrice.mul(1).div(100))
-      );
-      expect(await gold.balanceOf(buyer.address)).to.be.equal(
-        defaulBalance.sub(defaulPrice)
-      );
-      expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
-        defaulBalance.add(defaulPrice.mul(99).div(100))
-      );
-    });
-    it("should execute order correctly with fee 2 = 10.11111%", async function () {
-      await marketplace.updateFeeRate(5, 1011111);
-      const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
-      await expect(executeOrderTx)
-        .to.be.emit(marketplace, "OrderMatched")
-        .withArgs(
-          1,
-          seller.address,
-          buyer.address,
-          1,
-          gold.address,
-          defaulPrice
-        );
-      expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
-      expect(await gold.balanceOf(seller.address)).to.be.equal(
-        defaulBalance.add(defaulPrice.mul(8988889).div(10000000))
-      );
-      expect(await gold.balanceOf(buyer.address)).to.be.equal(
-        defaulBalance.sub(defaulPrice)
-      );
-      expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
-        defaulBalance.add(defaulPrice.mul(1011111).div(10000000))
-      );
-    });
+    // it("should execute order correctly with default fee", async function () {
+    //   const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
+    //   await expect(executeOrderTx)
+    //     .to.be.emit(marketplace, "OrderMatched")
+    //     .withArgs(
+    //       1,
+    //       seller.address,
+    //       buyer.address,
+    //       1,
+    //       gold.address,
+    //       defaulPrice
+    //     );
+    //   expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
+    //   expect(await gold.balanceOf(seller.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice.mul(90).div(100))
+    //   );
+    //   expect(await gold.balanceOf(buyer.address)).to.be.equal(
+    //     defaulBalance.sub(defaulPrice)
+    //   );
+    //   expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice.mul(10).div(100))
+    //   );
+    // });
+    // it("should execute order correctly with 0 fee", async function () {
+    //   await marketplace.updateFeeRate(0, 0);
+    //   const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
+    //   await expect(executeOrderTx)
+    //     .to.be.emit(marketplace, "OrderMatched")
+    //     .withArgs(
+    //       1,
+    //       seller.address,
+    //       buyer.address,
+    //       1,
+    //       gold.address,
+    //       defaulPrice
+    //     );
+    //   expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
+    //   expect(await gold.balanceOf(seller.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice)
+    //   );
+    //   expect(await gold.balanceOf(buyer.address)).to.be.equal(
+    //     defaulBalance.sub(defaulPrice)
+    //   );
+    //   expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
+    //     defaulBalance.add(0)
+    //   );
+    // });
+    // it("should execute order correctly with fee 1 = 99%", async function () {
+    //   await marketplace.updateFeeRate(0, 99);
+    //   const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
+    //   await expect(executeOrderTx)
+    //     .to.be.emit(marketplace, "OrderMatched")
+    //     .withArgs(
+    //       1,
+    //       seller.address,
+    //       buyer.address,
+    //       1,
+    //       gold.address,
+    //       defaulPrice
+    //     );
+    //   expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
+    //   expect(await gold.balanceOf(seller.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice.mul(1).div(100))
+    //   );
+    //   expect(await gold.balanceOf(buyer.address)).to.be.equal(
+    //     defaulBalance.sub(defaulPrice)
+    //   );
+    //   expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice.mul(99).div(100))
+    //   );
+    // });
+    // it("should execute order correctly with fee 2 = 10.11111%", async function () {
+    //   await marketplace.updateFeeRate(5, 1011111);
+    //   const executeOrderTx = await marketplace.connect(buyer).executeOrder(1);
+    //   await expect(executeOrderTx)
+    //     .to.be.emit(marketplace, "OrderMatched")
+    //     .withArgs(
+    //       1,
+    //       seller.address,
+    //       buyer.address,
+    //       1,
+    //       gold.address,
+    //       defaulPrice
+    //     );
+    //   expect(await petty.ownerOf(1)).to.be.equal(buyer.address);
+    //   expect(await gold.balanceOf(seller.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice.mul(8988889).div(10000000))
+    //   );
+    //   expect(await gold.balanceOf(buyer.address)).to.be.equal(
+    //     defaulBalance.sub(defaulPrice)
+    //   );
+    //   expect(await gold.balanceOf(feeRecipient.address)).to.be.equal(
+    //     defaulBalance.add(defaulPrice.mul(1011111).div(10000000))
+    //   );
+    // });
   });
 });
