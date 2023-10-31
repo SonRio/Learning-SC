@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TokenSale {
-    uint256 public investorMinCap = 0.02 ether;
+    uint256 public investorMinCap = 0.05 ether;
     uint256 public investorHardCap = 10 ether;
     uint256 public rate = 10;
     mapping(address => uint256) public contributions;
